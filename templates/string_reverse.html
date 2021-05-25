@@ -1,0 +1,45 @@
+{% extends filename %}
+{% block content %}
+<div class="main">
+    <form action="{{url_for('string_reverse')}}" method='POST'>
+        <div class="form-group m-3">
+            <label for="string">Enter the string</label><br>
+            <input type="text" name="string" id="string" placeholder="Enter the string to be reversed">
+        </div>
+        <div class="form-group">
+            <button id="reqsent" type="submit" class="btn btn-outline-info">Send</button>
+        </div>
+    </form>
+    <div id="out" class="output">
+        {{out}}
+    </div>
+</div>
+<script>
+    var out = document.getElementById("out")
+    ID = {{ reqID }}
+    var check = {{ check }}
+    console.log(ID)
+    async function check_updates() {
+        while (check) {
+            console.log(ID)
+            await new Promise(r => setTimeout(r, 2000));
+            await fetch(`/check_update/${ID}`, {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            }).then(response => response.json())
+                .then(data => {
+                    if ("incomplete" in data) {
+                        out.innerHTML = "Waiting for response..."
+                    } else {
+                        out.innerHTML = data["reversed_string"]
+                        check = false // break here
+                    }
+                });
+        }
+    };
+    check_updates();
+</script>
+{% endblock content %}
